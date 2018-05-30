@@ -1,0 +1,13 @@
+导出全部站点          l
+C:\Users\Administrator> %windir%\system32\inetsrv\appcmd list site /config /xml > c:\sites.xml
+
+导出全部应用池
+
+C:\Users\Administrator>%windir%\system32\inetsrv\appcmd list apppool /config /xml > c:\myapppool.xml                   l
+
+导入全部站点          l
+%windir%\system32\inetsrv\appcmd add site /in < c:\sites.xml
+
+
+导入全部应用池          l
+%windir%\system32\inetsrv\appcmd add apppool /in < c:\myapppool.xml
