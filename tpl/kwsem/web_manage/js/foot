@@ -45,6 +45,7 @@
 	  				var form = layui.form(),
 	  					layer = layui.layer,
 	  					laydate = layui.laydate;
+	  				layui.form('select').render();//城市插件
 	  				//自定义验证规则
 	  				form.verify({
 	  					title: function(value) {

@@ -498,6 +498,37 @@ class Output{
 	<?php return $this; }
 
 
+	public function select_city_plugin($d,$lm,$n){ global $$n;
+
+		if(  $this->in_if === false) return $this;
+		?>
+		<script src="/public/ui/layui/lay/dest/layui.all.js"></script>
+		  <div class="layui-form-item">
+
+			  <label title="<?php echo $n?>" class="layui-form-label"><?php echo $lm?><b>*</b></label>
+
+			  <div class="layui-input-inline">
+			  	<select name="P_<?=$n?>" lay-filter="province">
+			  		<option></option>
+			  	</select>
+			  </div>
+			  <div class="layui-input-inline">
+			  	<select name="C_<?=$n?>" lay-filter="city">
+			  		<option></option>
+			  	</select>
+			  </div>
+			  <div class="layui-input-inline">
+			  	<select name="A_<?=$n?>" lay-filter="area">
+			  		<option></option>
+			  	</select>
+			  </div>
+
+		 </div>
+		 <script type="text/javascript">
+		 	pca.init('select[name=P_<?=$n?>]', 'select[name=C_<?=$n?>]', 'select[name=A_<?=$n?>]', '<?=isset($d["P_{$n}"]) ? $d["P_{$n}"] : ''?>', '<?=isset($d["C_{$n}"]) ? $d["C_{$n}"] : ''?>', '<?=isset($d["A_{$n}"]) ? $d["A_{$n}"] : ''?>');
+		 </script>
+		 <?php UNSET($d,$lm,$n,$v,$t)?>
+	<?php return $this;}
 
 
 
@@ -919,7 +950,6 @@ HTML;
 	}
 
 	//编辑器调用
-
 	private static function initEditor($name='content',$width = '667', $height = '350'){
 
 		global $$name;
@@ -927,6 +957,19 @@ HTML;
 		$val  = htmlspecialchars_decode($$name);
 
 		$editor="<textarea class=\"editor_id\" name=\"{$name}\" style=\"width:{$width};height:{$height}px;\">{$val}</textarea>";
+
+		return $editor;
+
+	}
+
+	//百度编辑器调用
+	private static function initBaiduEditor($name='content',$width = '667', $height = '600'){
+
+		global $$name;
+
+		$val  = htmlspecialchars_decode($$name);
+
+		$editor="<textarea id=\"$name\" name=\"{$name}\" style=\"width:{$width};height:{$height}px;\"></textarea><code style=\"display:none\" id=\"{$name}_data\">{$val}</code><script>createEditor(\"$name\")</script>";
 
 		return $editor;
 
