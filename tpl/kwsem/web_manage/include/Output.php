@@ -1027,7 +1027,7 @@ HTML;
 
 		if ($disabled) {$disabled='disabled';}
 
-		if ($val==$this->inputVal || $checked) {$checked='checked';}
+		if ($val==$this->inputVal || (empty($val) && $checked)) {$checked='checked';}
 
 		$this->temp .= '<input '.$checked.' type="radio" '.$disabled.' name="'.$this->inputName.'" value="'.$val.'" title="'.$title.'">';
 
