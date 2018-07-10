@@ -1,0 +1,116 @@
+<?php
+namespace App\controller;
+use App\model\Person as Person;
+use Vendor\YunxinSmsApi as YunxinSmsApi;
+
+class UserController extends Controller
+{
+    /**
+     * Where to redirect users after login / registration.
+     *
+     * @var string
+     */
+    protected $redirectTo = '/user';
+
+    public function index() {
+        $person = Person::get();
+        return $this->view('person', compact('person'));
+
+    }
+    /**
+     * [sendMsg $unionId]
+     * @param  [type] $unionId [手机号]
+     * @return [type]          [description]
+     */
+    public function sendMsg($unionId) {
+
+        $yzm = new \Yzm();//$yzm->sanbox();
+
+        if (!$yzm->expired($unionId)) {
+
+            die('{"code":500,"message":"短信请求过于频繁, 请稍后再试"}');
+        }
+
+        $code = $yzm->setCode($unionId);
+
+        $yxapi  = new YunxinSmsApi();
+
+
+        $msg='【秒贷】尊敬的客户, 您申请的手机验证码为'.$code.', 如非本人操作请忽略!';
+        $extno ="10690136"; //接入号，即 10690XXXXXX类似的号码,可通过帐号资料查询
+        $result = $yxapi->sendSMS($unionId, $msg , $extno);
+
+        $josnResult = json_decode($result, true);
+
+        if ($josnResult['status'] == 0) {
+
+            echo '{"code":0,"message":"成功"}';
+        } else {
+
+            echo '{"code":500,"message":"短信发送失败"}';
+        }
+        die();
+
+
+    }
+
+    public function register()
+    {
+        $verify = [//inted
+            'captcha' => ['required', '请输入验证码'],
+            'yourname' => ['required', '请填写中文姓名'],
+            // 'unionId' => ['phobe', '请填写中文姓名'],
+            'edu' => ['required', '请填写纯数字形式的额度'],
+            'id' => ['required', '请填写正确格式的身份证号'],
+            'danwei' => ['required', '请填写工作单位'],
+            'zhiwei' => ['required', '请填写职位'],
+            'gongjijin' => ['required', '请选择是否有公积金'],
+            'when' => ['required', '请填写何时需要资金'],
+            // 'email' => ['email', lang('email')],
+            // 'message' => ['required', lang('message')],
+        ];
+        $form = new \VerifyForm($verify, 'get');
+        #验证不通过
+        if ($form->result()) {
+            // returnJson(-100, $form->error, $form->field);
+            die('{"code":500, "message":"'.$form->error.'"}');
+        }
+
+        $yzm = new \Yzm();
+
+        if ($yzm->verify_error($form->unionId, $form->captcha)) {
+
+            die('{"code":500, "message":"验证码不正确"}');
+        }
+        /*$file = uppro_file('resume', config('pic.document'));
+        if ($file === false) {
+            returnJson(-100, '请上传你的简历,文件格式为word或jpg');
+        }*/
+
+        $insert = M('message')->insert([
+
+            'yourname'  => $form->yourname,
+            'phone'  => $form->unionId,
+            'edu'  => $form->edu,
+            'cardid'  => $form->id,
+            'danwei'  => $form->danwei,
+            'zhiwei'  => $form->zhiwei,
+            'gongjijin'  => $form->gongjijin,
+            'when'  => $form->when,
+            // 'message' => $form->message,
+
+            'type' => 0,
+            'ip' => $form->ip(),
+            'sendtime' => $form->time(),
+        ]);
+
+        if ($insert) {
+            $yzm->clear($form->unionId);
+            die('{"code":0,"message":"成功"}');
+        } else {
+            die('{"code":500, "message":"'.lang('message_failed').'"}');
+        }
+    }
+
+
+}
